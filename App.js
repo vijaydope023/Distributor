@@ -7,10 +7,18 @@
  */
 
 import React, {Component} from 'react';
-import {StatusBar, View, TouchableOpacity, Text, Image} from 'react-native';
+import {
+  StatusBar,
+  View,
+  TouchableOpacity,
+  Text,
+  Image,
+  ActivityIndicator,
+} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
+import auth from '@react-native-firebase/auth';
 import Shops from './src/components/MainTabs/Shops';
 import Companies from './src/components/MainTabs/Companies';
 import History from './src/components/MainTabs/History';
@@ -20,6 +28,7 @@ import ProductCategory from './src/components/ProductCategory';
 import ProductSubCategory from './src/components/ProductSubCategory';
 import Bill from './src/components/Bill';
 import HistoryDetail from './src/components/HistoryDetail';
+import LoginScreen from './src/components/LoginScreen';
 
 const Tab = createMaterialTopTabNavigator();
 const Stack = createStackNavigator();
@@ -149,28 +158,58 @@ function HomeScreen() {
 }
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      loading: true,
+      user: null,
+    };
+  }
+
+  componentDidMount = () => {
+    const result = auth().onAuthStateChanged(user => {
+      user
+        ? this.setState({user, loading: false})
+        : this.setState({user: null, loading: false});
+    });
+    console.log('result ', result.user);
+  };
+
   render() {
     return (
       <SafeAreaProvider>
         <StatusBar barStyle="light-content" />
-        <NavigationContainer>
-          <Stack.Navigator
-            initialRouteName="Home"
-            screenOptions={{
-              headerTitle: props => <AppTabBar {...props} />,
-              headerRight: () => null,
-              headerLeft: () => null,
-            }}>
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="ProductCategory" component={ProductCategory} />
-            <Stack.Screen
-              name="ProductSubCategory"
-              component={ProductSubCategory}
-            />
-            <Stack.Screen name="Bill" component={Bill} />
-            <Stack.Screen name="HistoryDetail" component={HistoryDetail} />
-          </Stack.Navigator>
-        </NavigationContainer>
+        {this.state.loading ? (
+          <ActivityIndicator
+            style={{height: '90%'}}
+            color="white"
+            size="large"
+          />
+        ) : (
+          <NavigationContainer>
+            <Stack.Navigator
+              screenOptions={{
+                headerTitle: props => <AppTabBar {...props} />,
+                headerRight: () => null,
+                headerLeft: () => null,
+              }}>
+              {!this.state.user ? (
+                <Stack.Screen name="Login" component={LoginScreen} />
+              ) : null}
+              <Stack.Screen name="Home" component={HomeScreen} />
+              <Stack.Screen
+                name="ProductCategory"
+                component={ProductCategory}
+              />
+              <Stack.Screen
+                name="ProductSubCategory"
+                component={ProductSubCategory}
+              />
+              <Stack.Screen name="Bill" component={Bill} />
+              <Stack.Screen name="HistoryDetail" component={HistoryDetail} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        )}
       </SafeAreaProvider>
     );
   }
