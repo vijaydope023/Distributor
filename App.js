@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import {createDrawerNavigator} from '@react-navigation/drawer';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import auth from '@react-native-firebase/auth';
 import Shops from './src/components/MainTabs/Shops';
@@ -29,9 +30,11 @@ import ProductSubCategory from './src/components/ProductSubCategory';
 import Bill from './src/components/Bill';
 import HistoryDetail from './src/components/HistoryDetail';
 import LoginScreen from './src/components/LoginScreen';
+import LogoutScreen from './src/components/LogoutScreen';
 
 const Tab = createMaterialTopTabNavigator();
 const Stack = createStackNavigator();
+const Drawer = createDrawerNavigator();
 
 const AppTabBar = () => (
   <View
@@ -157,6 +160,23 @@ function HomeScreen() {
   );
 }
 
+function AllScreens() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerTitle: props => <AppTabBar {...props} />,
+        headerRight: () => null,
+        headerLeft: () => null,
+      }}>
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="ProductCategory" component={ProductCategory} />
+      <Stack.Screen name="ProductSubCategory" component={ProductSubCategory} />
+      <Stack.Screen name="Bill" component={Bill} />
+      <Stack.Screen name="HistoryDetail" component={HistoryDetail} />
+    </Stack.Navigator>
+  );
+}
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -177,40 +197,18 @@ class App extends Component {
 
   render() {
     return (
-      <SafeAreaProvider>
-        <StatusBar barStyle="light-content" />
-        {this.state.loading ? (
-          <ActivityIndicator
-            style={{height: '90%'}}
-            color="white"
-            size="large"
-          />
+      <NavigationContainer>
+        {!this.state.user ? (
+          <Stack.Navigator>
+            <Stack.Screen name="LoginScreen" component={LoginScreen} />
+          </Stack.Navigator>
         ) : (
-          <NavigationContainer>
-            <Stack.Navigator
-              screenOptions={{
-                headerTitle: props => <AppTabBar {...props} />,
-                headerRight: () => null,
-                headerLeft: () => null,
-              }}>
-              {!this.state.user ? (
-                <Stack.Screen name="Login" component={LoginScreen} />
-              ) : null}
-              <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen
-                name="ProductCategory"
-                component={ProductCategory}
-              />
-              <Stack.Screen
-                name="ProductSubCategory"
-                component={ProductSubCategory}
-              />
-              <Stack.Screen name="Bill" component={Bill} />
-              <Stack.Screen name="HistoryDetail" component={HistoryDetail} />
-            </Stack.Navigator>
-          </NavigationContainer>
+          <Drawer.Navigator>
+            <Drawer.Screen name="AllScreens" component={AllScreens} />
+            <Drawer.Screen name="LogoutScreen" component={LogoutScreen} />
+          </Drawer.Navigator>
         )}
-      </SafeAreaProvider>
+      </NavigationContainer>
     );
   }
 }

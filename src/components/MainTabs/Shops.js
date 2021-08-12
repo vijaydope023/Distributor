@@ -1,8 +1,17 @@
 import React, {Component} from 'react';
-import {Text, View, Button, FlatList} from 'react-native';
+import {Text, View, FlatList} from 'react-native';
 import ShopList from '../../helpers/ShopList';
+import database from '@react-native-firebase/database';
+import auth from '@react-native-firebase/auth';
 
 class Shops extends Component {
+  componentDidMount = () => {
+    const reference = database().ref(`/Distributors/${auth().currentUser.uid}`);
+    const onValueChange = reference.on('value', snapshot => {
+      console.log('User data: ', snapshot.val());
+    });
+  };
+
   onPressItem = ({title}) => {
     this.props.navigation.navigate('ProductCategory', {title});
   };
