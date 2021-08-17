@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
@@ -30,7 +31,12 @@ import ProductSubCategory from './src/components/ProductSubCategory';
 import Bill from './src/components/Bill';
 import HistoryDetail from './src/components/HistoryDetail';
 import LoginScreen from './src/components/LoginScreen';
-import LogoutScreen from './src/components/LogoutScreen';
+import LogoutScreen from './src/components/DrawerTabs/LogoutScreen';
+import AddShops from './src/components/DrawerTabs/AddShops';
+import AddCompany from './src/components/DrawerTabs/AddCompany';
+import AddProduct from './src/components/DrawerTabs/AddProduct';
+import AddMainProduct from './src/components/DrawerTabs/AddMainProduct';
+import AddSubProduct from './src/components/DrawerTabs/AddSubProduct';
 
 const Tab = createMaterialTopTabNavigator();
 const Stack = createStackNavigator();
@@ -177,6 +183,16 @@ function AllScreens() {
   );
 }
 
+function AddProductScreens() {
+  return (
+    <Stack.Navigator initialRouteName="SelectCompany">
+      <Stack.Screen name="SelectCompany" component={AddProduct} />
+      <Stack.Screen name="AddMainProduct" component={AddMainProduct} />
+      <Stack.Screen name="AddSubProduct" component={AddSubProduct} />
+    </Stack.Navigator>
+  );
+}
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -205,6 +221,9 @@ class App extends Component {
         ) : (
           <Drawer.Navigator>
             <Drawer.Screen name="AllScreens" component={AllScreens} />
+            <Drawer.Screen name="AddShops" component={AddShops} />
+            <Drawer.Screen name="AddCompany" component={AddCompany} />
+            <Drawer.Screen name="AddProduct" component={AddProductScreens} />
             <Drawer.Screen name="LogoutScreen" component={LogoutScreen} />
           </Drawer.Navigator>
         )}
