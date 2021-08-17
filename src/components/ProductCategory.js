@@ -1,49 +1,94 @@
 import React, {Component} from 'react';
 import {Text, View, Button, FlatList} from 'react-native';
 import ProductCategoryList from '../helpers/ProductCategoryList';
-
+import database from '@react-native-firebase/database';
+import auth from '@react-native-firebase/auth';
+import {Picker} from '@react-native-picker/picker';
 class ProductCategory extends Component {
-  onPressItem = ({title}) => {
-    this.props.navigation.navigate('ProductSubCategory', {title});
+  constructor(props) {
+    super(props);
+    this.state = {
+      companyList: null,
+      value: null,
+      productList: null,
+    };
+  }
+
+  componentDidMount = () => {
+    database()
+      .ref(`/Distributors/${auth().currentUser.uid}/Companies`)
+      .once('value', snapshopt => {
+        this.setState({companyList: snapshopt.val()});
+        this.setState(prevState => ({
+          ...prevState,
+          value: Object.keys(prevState.companyList)[0],
+        }));
+      });
+  };
+
+  componentDidUpdate = (_prevProps, prevState) => {
+    if (this.state.value && prevState.value !== this.state.value) {
+      console.log('in update');
+      database()
+        .ref(
+          `/Distributors/${auth().currentUser.uid}/Products/${
+            this.state.value
+          }`,
+        )
+        .once('value', snapshopt => {
+          this.setState({productList: snapshopt.val()});
+        });
+    }
+  };
+
+  onPressItem = item => {
+    this.props.navigation.navigate('ProductSubCategory', {
+      productId: item,
+      companyId: this.state.value,
+    });
+  };
+
+  selectCompany = val => {
+    console.log('key ', val);
+    this.setState({value: val});
   };
 
   render() {
-    const DATA = [
-      {
-        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-        title: 'First Product',
-        img: 'img1',
-      },
-      {
-        id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-        title: 'Second Product',
-        img: 'img2',
-      },
-      {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Product',
-        img: 'img3',
-      },
-    ];
+    const {value, companyList, productList} = this.state;
     return (
       <View>
         <Text> Product category from {this.props.route.params.title}</Text>
+
+        {companyList ? (
+          <Picker
+            selectedValue={value}
+            onValueChange={val => this.selectCompany(val)}>
+            {Object.keys(companyList).map(key => {
+              return (
+                <Picker.Item value={key} label={companyList[key].companyName} />
+              );
+            })}
+          </Picker>
+        ) : null}
+
+        {productList ? (
+          <FlatList
+            data={Object.keys(productList)}
+            renderItem={({item}) => (
+              <ProductCategoryList
+                onPress={() => this.onPressItem(item)}
+                productName={productList[item].productName}
+              />
+            )}
+          />
+        ) : (
+          <Text>loading product list...</Text>
+        )}
         <Button
           onPress={() => {
             this.props.navigation.navigate('Bill');
           }}
           title="Bill"
-        />
-
-        <FlatList
-          data={DATA}
-          renderItem={({item, index}) => (
-            <ProductCategoryList
-              onPress={() => this.onPressItem(item)}
-              productName={item.title}
-              img={item.img}
-            />
-          )}
         />
       </View>
     );

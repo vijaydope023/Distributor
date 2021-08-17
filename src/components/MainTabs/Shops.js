@@ -5,48 +5,44 @@ import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
 
 class Shops extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      shopList: null,
+    };
+  }
   componentDidMount = () => {
-    const reference = database().ref(`/Distributors/${auth().currentUser.uid}`);
-    const onValueChange = reference.on('value', snapshot => {
-      console.log('User data: ', snapshot.val());
-    });
+    database()
+      .ref(`/Distributors/${auth().currentUser.uid}/Shops`)
+      .once('value', snapshot => {
+        this.setState({shopList: snapshot.val()});
+      });
   };
-
-  onPressItem = ({title}) => {
-    this.props.navigation.navigate('ProductCategory', {title});
+  onPressItem = item => {
+    this.props.navigation.navigate('ProductCategory', {item});
   };
 
   render() {
-    const DATA = [
-      {
-        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-        title: 'First Shop',
-      },
-      {
-        id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-        title: 'Second Shop',
-      },
-      {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Shop',
-      },
-    ];
-
+    const {shopList} = this.state;
     return (
       <View style={{flex: 1, backgroundColor: 'gray'}}>
         <Text> Shops </Text>
 
-        <FlatList
-          data={DATA}
-          renderItem={({item, index}) => (
-            <ShopList
-              onPress={() => {
-                this.onPressItem(item);
-              }}
-              title={item.title}
-            />
-          )}
-        />
+        {shopList ? (
+          <FlatList
+            data={Object.keys(shopList)}
+            renderItem={({item}) => (
+              <ShopList
+                onPress={() => {
+                  this.onPressItem(item);
+                }}
+                title={shopList[item].shopName}
+              />
+            )}
+          />
+        ) : (
+          <Text>No shops added</Text>
+        )}
       </View>
     );
   }
