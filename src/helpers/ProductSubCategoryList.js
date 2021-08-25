@@ -1,12 +1,18 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 
-const ProductCategoryList = ({subProductName, itemNo, variant}) => {
+const ProductCategoryList = ({
+  subProductName,
+  itemNo,
+  counterRate,
+  itemCount,
+}) => {
   return (
     <View style={styles.container}>
       <Text>{itemNo}</Text>
       <Text>{subProductName}</Text>
-      <Text>{variant}</Text>
+      <Text>{counterRate}</Text>
+      <Text>{itemCount}</Text>
     </View>
   );
 };

@@ -1,29 +1,33 @@
 import React, {Component} from 'react';
 import {Text, View, Button, FlatList} from 'react-native';
 import ProductSubCategoryList from '../helpers/ProductSubCategoryList';
-
+import database from '@react-native-firebase/database';
+import auth from '@react-native-firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 class ProductSubCategory extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      companyId: this.props.route.params.companyId,
+      productId: this.props.route.params.productId,
+      subProductList: null,
+    };
+  }
+
+  componentDidMount = () => {
+    database()
+      .ref(
+        `/Distributors/${auth().currentUser.uid}/SubProducts/${
+          this.state.companyId
+        }/${this.state.productId}`,
+      )
+      .once('value', snapshopt => {
+        this.setState({subProductList: snapshopt.val()});
+      });
+  };
+
   render() {
-    const DATA = [
-      {
-        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-        title: 'First subProduct',
-        itemNo: 'itemNo1',
-        variant: '6 nos',
-      },
-      {
-        id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-        title: 'Second subProduct',
-        itemNo: 'itemNo2',
-        variant: '10 nos',
-      },
-      {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third subProduct',
-        itemNo: 'itemNo3',
-        variant: '100 gm',
-      },
-    ];
+    const {subProductList} = this.state;
     return (
       <View>
         <Text> subProduct sub category {this.props.route.params.title}</Text>
@@ -35,16 +39,21 @@ class ProductSubCategory extends Component {
           title="add items"
         />
 
-        <FlatList
-          data={DATA}
-          renderItem={({item, index}) => (
-            <ProductSubCategoryList
-              subProductName={item.title}
-              itemNo={item.itemNo}
-              variant={item.variant}
-            />
-          )}
-        />
+        {subProductList ? (
+          <FlatList
+            data={Object.keys(subProductList)}
+            renderItem={({item}) => (
+              <ProductSubCategoryList
+                subProductName={subProductList[item].subProductName}
+                counterRate={subProductList[item].counterRate}
+                itemNo={subProductList[item].itemNo}
+                itemCount={subProductList[item].itemCount}
+              />
+            )}
+          />
+        ) : (
+          <Text>loading sub-product list...</Text>
+        )}
       </View>
     );
   }

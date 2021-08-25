@@ -99,7 +99,7 @@ class AddSubProduct extends Component {
                       }/${this.productId}`,
                     )
                     .push()
-                    .set({itemNo, subProductName, counterRate})
+                    .set({itemNo, subProductName, counterRate, itemCount: 0})
                     .then(() =>
                       console.log(
                         'in add sub product data uploaded successfully!',
