@@ -145,6 +145,7 @@ function MyTabBar({state, descriptors, navigation}) {
 function HomeScreen() {
   return (
     <Tab.Navigator
+      backBehavior="initialRoute"
       tabBar={props => <MyTabBar {...props} />}
       initialRouteName="Shops">
       <Tab.Screen

@@ -86,7 +86,7 @@ class ProductCategory extends Component {
         )}
         <Button
           onPress={() => {
-            this.props.navigation.navigate('Bill');
+            this.props.navigation.navigate('Bill', {value});
           }}
           title="Bill"
         />
