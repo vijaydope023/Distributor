@@ -19,7 +19,10 @@ class Companies extends Component {
       });
   };
   onPressItem = item => {
-    this.props.navigation.navigate('ProductCategory', {item});
+    this.props.navigation.navigate('ProductCategory', {
+      item,
+      from: 'Companies',
+    });
   };
   render() {
     const {companyList} = this.state;

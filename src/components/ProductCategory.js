@@ -9,7 +9,7 @@ class ProductCategory extends Component {
     super(props);
     this.state = {
       companyList: null,
-      value: null,
+      companyId: null,
       productList: null,
     };
   }
@@ -21,18 +21,18 @@ class ProductCategory extends Component {
         this.setState({companyList: snapshopt.val()});
         this.setState(prevState => ({
           ...prevState,
-          value: Object.keys(prevState.companyList)[0],
+          companyId: Object.keys(prevState.companyList)[0],
         }));
       });
   };
 
   componentDidUpdate = (_prevProps, prevState) => {
-    if (this.state.value && prevState.value !== this.state.value) {
+    if (this.state.companyId && prevState.companyId !== this.state.companyId) {
       console.log('in update');
       database()
         .ref(
           `/Distributors/${auth().currentUser.uid}/Products/${
-            this.state.value
+            this.state.companyId
           }`,
         )
         .once('value', snapshopt => {
@@ -44,24 +44,36 @@ class ProductCategory extends Component {
   onPressItem = item => {
     this.props.navigation.navigate('ProductSubCategory', {
       productId: item,
-      companyId: this.state.value,
+      companyId: this.state.companyId,
     });
   };
 
   selectCompany = val => {
-    console.log('key ', val);
-    this.setState({value: val});
+    this.setState({companyId: val});
+  };
+
+  onBillPress = () => {
+    if (this.props.route.params.from === 'Shops') {
+      this.props.navigation.navigate('Bill', {
+        shopDetails: this.props.route.params.shopDetails,
+        companyDetails: {
+          companyName: this.state.companyList[this.state.companyId].companyName,
+          companyId: this.state.companyId,
+        },
+        from: this.props.route.params.from,
+      });
+    }
   };
 
   render() {
-    const {value, companyList, productList} = this.state;
+    const {companyId, companyList, productList} = this.state;
     return (
       <View>
-        <Text> Product category from {this.props.route.params.title}</Text>
+        <Text> Product category from {this.props.route.params.from}</Text>
 
         {companyList ? (
           <Picker
-            selectedValue={value}
+            selectedValue={companyId}
             onValueChange={val => this.selectCompany(val)}>
             {Object.keys(companyList).map(key => {
               return (
@@ -84,12 +96,7 @@ class ProductCategory extends Component {
         ) : (
           <Text>loading product list...</Text>
         )}
-        <Button
-          onPress={() => {
-            this.props.navigation.navigate('Bill', {value});
-          }}
-          title="Bill"
-        />
+        <Button onPress={this.onBillPress} title="Bill" />
       </View>
     );
   }

@@ -18,8 +18,11 @@ class Shops extends Component {
         this.setState({shopList: snapshot.val()});
       });
   };
-  onPressItem = item => {
-    this.props.navigation.navigate('ProductCategory', {item});
+  onPressItem = (name, phoneNo) => {
+    this.props.navigation.navigate('ProductCategory', {
+      shopDetails: {shopName: name, shopPhoneNo: phoneNo},
+      from: 'Shops',
+    });
   };
 
   render() {
@@ -34,7 +37,10 @@ class Shops extends Component {
             renderItem={({item}) => (
               <ShopList
                 onPress={() => {
-                  this.onPressItem(item);
+                  this.onPressItem(
+                    shopList[item].shopName,
+                    shopList[item].shopPhoneNumber,
+                  );
                 }}
                 title={shopList[item].shopName}
               />
